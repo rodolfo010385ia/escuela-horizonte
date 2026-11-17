@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escuela Horizonte · Secundaria</title>
+
+<!-- Tipografía moderna Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Configuración de Tailwind -->
+<script>
+  tailwind.config = {
+    darkMode: ['selector', '[data-theme="dark"]'],
+    theme: {
+      extend: {
+        colors: {
+          navy: {
+            DEFAULT: '#0f1f3d',
+            light: '#1e293b',
+            dark: '#091326'
+          },
+          teal: {
+            DEFAULT: '#0d9488',
+            light: '#14b8a6',
+            dark: '#0f766e'
+          },
+          sun: {
+            DEFAULT: '#f59e0b',
+            light: '#fbbf24',
+            dark: '#d97706'
+          }
+        },
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+
+<!-- Estilos base del chat de n8n -->
+<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet">
+
+<!-- Script preventivo anti-parpadeo de tema (FOUC) -->
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('eh_theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+</script>
+
+<style>
+  /* =====================================================================
+     VARIABLES Y REGLAS DE ALTO CONTRASTE PARA EL CHAT DE N8N
+     ===================================================================== */
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --teal-glow: rgba(13, 148, 136, 0.25);
+    
+    --chat--font-family: var(--font-sans);
+    --chat--border-radius: 24px;
+    --chat--color--primary: #0d9488;
+    --chat--color--primary-shade-50: #0f766e;
+    --chat--color--primary--shade-100: #115e59;
+    --chat--color--secondary: #0f1f3d;
+    --chat--color-typing: #0d9488;
+    
+    --chat--header--background: #0f1f3d;
+    --chat--header--color: #ffffff;
+    --chat--toggle--background: #0d9488;
+    --chat--toggle--hover--background: #0f766e;
+    --chat--toggle--active--background: #115e59;
+    --chat--toggle--size: 62px;
+    
+    --chat--message--user--background: #0d9488;
+    --chat--message--user--color: #ffffff;
+    --chat--message--bot--background: #ffffff;
+    --chat--message--bot--color: #0f172a;
+    
+    --chat--window--background: #f8fafc;
+    --chat--body--background: #f1f5f9;
+    --chat--footer--background: #ffffff;
+    --chat--footer--border-top: 1.5px solid #e2e8f0;
+    
+    --chat--input--background: transparent;
+    --chat--input--container--background: #f8fafc;
+    --chat--input--container--border: 1.5px solid #cbd5e1;
+    --chat--input--container--border-radius: 24px;
+    --chat--input--text-color: #0f172a;
+    --chat--input--send--button--background: #0d9488;
+    --chat--input--send--button--color: #ffffff;
+    
+    --chat--window--width: 400px;
+    --chat--window--height: 580px;
+    --chat--window--border-radius: 24px;
+    --chat--header--padding: 18px 22px;
+    --chat--heading--font-size: 19px;
+    --chat--subtitle--font-size: 13.5px;
+  }
+
+  [data-theme="dark"] {
+    --teal-glow: rgba(20, 184, 166, 0.25);
+    
+    --chat--header--background: #0b111e;
+    --chat--window--background: #0d131f;
+    --chat--body--background: #0d131f;
+    --chat--footer--background: #111827;
+    --chat--footer--border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+    
+    --chat--input--background: transparent;
+    --chat--input--container--background: #1a2333;
+    --chat--input--container--border: 1.5px solid rgba(255, 255, 255, 0.14);
+    --chat--input--container--border-radius: 24px;
+    --chat--input--text-color: #f8fafc;
+    --chat--input--send--button--background: #0d9488;
+    --chat--input--send--button--color: #ffffff;
+    
+    --chat--color-typing: #14b8a6;
+    --chat--message--user--background: #0d9488;
+    --chat--message--user--color: #ffffff;
+    --chat--message--bot--background: #1a2333;
+    --chat--message--bot--color: #f8fafc;
+  }
+
+  #n8n-chat,
+  .chat-window-wrapper,
+  .chat-window,
+  .chat-layout {
+    font-family: var(--font-sans) !important;
+  }
+
+  .chat-window-wrapper .chat-window,
+  #n8n-chat .chat-window {
+    border-radius: 26px !important;
+    overflow: hidden !important;
+    box-shadow: 0 0 0 1.5px rgba(15, 31, 61, 0.12), 0 24px 50px -10px rgba(15, 23, 42, 0.28), 0 12px 24px -6px rgba(15, 23, 42, 0.12) !important;
+    border: 1.5px solid rgba(15, 31, 61, 0.12) !important;
+    background-color: #f8fafc !important;
+  }
+
+  .chat-header,
+  #n8n-chat .chat-header {
+    border-radius: 26px 26px 0 0 !important;
+    background: linear-gradient(135deg, #091326 0%, #0f1f3d 100%) !important;
+    color: #ffffff !important;
+    padding: 18px 22px !important;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .chat-header h1,
+  #n8n-chat .chat-header h1 {
+    font-family: var(--font-sans) !important;
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+  }
+
+  .chat-header p,
+  #n8n-chat .chat-header p {
+    font-family: var(--font-sans) !important;
+    font-size: 13px !important;
+    color: #cbd5e1 !important;
+    margin-top: 5px !important;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .chat-header p::before,
+  #n8n-chat .chat-header p::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulseDot 2s infinite ease-in-out;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .chat-close-button,
+  #n8n-chat .chat-close-button {
+    border-radius: 12px !important;
+    padding: 6px !important;
+    color: #ffffff !important;
+  }
+
+  .chat-window-wrapper .chat-window-toggle,
+  #n8n-chat .chat-window-toggle {
+    border-radius: 50% !important;
+    width: 62px !important;
+    height: 62px !important;
+    background: #0d9488 !important;
+    background-color: #0d9488 !important;
+    border: 3.5px solid #ffffff !important;
+    box-shadow: 0 0 0 1px rgba(15, 31, 61, 0.15), 0 14px 28px -4px rgba(13, 148, 136, 0.5), 0 6px 14px -2px rgba(15, 23, 42, 0.25) !important;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
+    cursor: pointer !important;
+  }
+  .chat-window-wrapper .chat-window-toggle:hover {
+    transform: scale(1.08) translateY(-3px) !important;
+    box-shadow: 0 0 0 1px rgba(15, 31, 61, 0.2), 0 18px 36px -4px rgba(13, 148, 136, 0.6), 0 8px 18px -2px rgba(15, 23, 42, 0.3) !important;
+  }
+
+  .chat-layout .chat-body,
+  .chat-body {
+    background-color: var(--chat--body--background) !important;
+  }
+  .chat-messages-list {
+    background-color: var(--chat--body--background) !important;
+    padding: 20px !important;
+    gap: 14px !important;
+  }
+
+  .chat-message {
+    font-family: var(--font-sans) !important;
+    font-size: 14.5px !important;
+    line-height: 1.55 !important;
+    padding: 12px 18px !important;
+    max-width: 86% !important;
+  }
+
+  .chat-message.chat-message-from-bot {
+    border-radius: 20px 20px 20px 4px !important;
+    border-bottom-left-radius: 4px !important;
+    background: var(--chat--message--bot--background) !important;
+    background-color: var(--chat--message--bot--background) !important;
+    color: var(--chat--message--bot--color) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .chat-message.chat-message-from-user {
+    border-radius: 20px 20px 4px 20px !important;
+    border-bottom-right-radius: 4px !important;
+    background: #0d9488 !important;
+    background-color: #0d9488 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35) !important;
+    margin-left: auto !important;
+  }
+
+  .chat-message-typing {
+    border-radius: 20px 20px 20px 4px !important;
+    background-color: var(--chat--message--bot--background) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+  }
+  .chat-message-typing .chat-message-typing-circle {
+    background-color: #0d9488 !important;
+  }
+
+  .chat-layout .chat-footer,
+  .chat-footer {
+    background-color: var(--chat--footer--background) !important;
+    border-top: var(--chat--footer--border-top) !important;
+    padding: 12px 16px !important;
+    border-radius: 0 0 26px 26px !important;
+  }
+
+  .chat-inputs,
+  .chat-inputs[data-v-8cd4704b] {
+    background: var(--chat--input--container--background) !important;
+    background-color: var(--chat--input--container--background) !important;
+    border: var(--chat--input--container--border) !important;
+    border-radius: 24px !important;
+    padding: 6px 8px 6px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+  }
+  .chat-inputs:focus-within {
+    border-color: #0d9488 !important;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2) !important;
+  }
+
+  .chat-inputs textarea,
+  .chat-inputs textarea[data-v-8cd4704b] {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: var(--chat--input--text-color) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    padding: 6px 0 !important;
+    resize: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 24px !important;
+  }
+
+  .chat-input-send-button,
+  .chat-input-send-button[data-v-8cd4704b],
+  .chat-inputs button {
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    background: #0d9488 !important;
+    background-color: #0d9488 !important;
+    color: #ffffff !important;
+    border: none !important;
+    display: grid !important;
+    place-items: center !important;
+    box-shadow: 0 4px 10px rgba(13, 148, 136, 0.35) !important;
+    transition: transform 0.2s ease, filter 0.2s ease !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin-left: 6px !important;
+  }
+  .chat-input-send-button:hover,
+  .chat-inputs button:hover {
+    transform: scale(1.08) !important;
+    filter: brightness(1.1) !important;
+  }
+
+  /* Modo Noche Overrides */
+  [data-theme="dark"] .chat-window-wrapper .chat-window,
+  [data-theme="dark"] .chat-layout {
+    background-color: #0d131f !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.14), 0 30px 60px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(20, 184, 166, 0.18) !important;
+  }
+  [data-theme="dark"] .chat-header {
+    background: linear-gradient(135deg, #080c14 0%, #111827 100%) !important;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  [data-theme="dark"] .chat-layout .chat-body,
+  [data-theme="dark"] .chat-body,
+  [data-theme="dark"] .chat-messages-list {
+    background-color: #0d131f !important;
+  }
+  [data-theme="dark"] .chat-message.chat-message-from-bot {
+    background: #1a2333 !important;
+    background-color: #1a2333 !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3) !important;
+  }
+  [data-theme="dark"] .chat-layout .chat-footer,
+  [data-theme="dark"] .chat-footer {
+    background-color: #111827 !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  [data-theme="dark"] .chat-inputs,
+  [data-theme="dark"] .chat-inputs[data-v-8cd4704b] {
+    background-color: #1a2333 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  }
+  [data-theme="dark"] .chat-inputs:focus-within {
+    border-color: #14b8a6 !important;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25) !important;
+    background-color: #1e293b !important;
+  }
+  [data-theme="dark"] .chat-inputs textarea,
+  [data-theme="dark"] .chat-inputs textarea[data-v-8cd4704b] {
+    color: #f8fafc !important;
+  }
+  [data-theme="dark"] .chat-window-wrapper .chat-window-toggle {
+    border: 3.5px solid #1e293b !important;
+    box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.4), 0 14px 30px -4px rgba(20, 184, 166, 0.5), 0 0 20px rgba(20, 184, 166, 0.25) !important;
+  }
+</style>
+</head>
+<body class="bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-teal-500 selection:text-white transition-colors duration-300">
+
+<!-- =====================================================================
+     1. HEADER & NAVEGACIÓN
+     ===================================================================== -->
+<header class="sticky top-0 z-40 backdrop-blur-md bg-white/85 dark:bg-[#0b0f19]/85 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
+  <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-3 font-extrabold text-xl tracking-tight text-slate-900 dark:text-white group">
+      <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0f1f3d] to-[#0d9488] flex items-center justify-center shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+        <span class="w-4 h-2 rounded-t-full bg-amber-400 mt-1"></span>
+      </span>
+      <span>Escuela Horizonte</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-300">
+      <a href="#oferta" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Oferta</a>
+      <a href="#inscripciones" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Inscripciones</a>
+      <a href="#costos" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Costos y Becas</a>
+      <a href="#testimonios" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Comunidad</a>
+      <a href="#faq" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Preguntas</a>
+      <a href="#contacto" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Contacto</a>
+    </nav>
+
+    <div class="flex items-center gap-3 sm:gap-4">
+      <button id="theme-toggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800 text-slate-700 dark:text-amber-400 hover:scale-105 active:scale-95 transition-all shadow-sm" aria-label="Cambiar tema">
+        <svg class="hidden dark:block w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="block dark:hidden w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <a href="#inscripciones" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold text-sm shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all">
+        Inscríbete
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- =====================================================================
+     2. HERO SECTION CON COMPOSICIÓN VISUAL Y CUENTA REGRESIVA
+     ===================================================================== -->
+<section class="relative overflow-hidden bg-gradient-to-br from-[#080f1e] via-[#0f1f3d] to-[#0a233b] text-white py-20 sm:py-28 border-b border-slate-800">
+  <div class="absolute -top-32 -right-32 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      
+      <!-- Columna Izquierda: Información Principal -->
+      <div class="lg:col-span-7">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-white/10 backdrop-blur-md border border-white/20 text-slate-200 mb-6 shadow-sm">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+          Admisiones Ciclo Escolar 2027–2028
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] mb-6 text-white">
+          Una secundaria donde cada alumno encuentra su <span class="bg-gradient-to-r from-teal-300 via-teal-200 to-amber-300 bg-clip-text text-transparent">horizonte</span>
+        </h1>
+
+        <p class="text-lg sm:text-xl text-slate-300 mb-8 leading-relaxed font-normal max-w-xl">
+          Grupos reducidos de máximo 30 alumnos, talleres de robótica STEAM, 5 horas semanales de inglés y acompañamiento que potencia el talento de cada estudiante.
+        </p>
+
+        <!-- Botones de Acción -->
+        <div class="flex flex-wrap items-center gap-4 mb-10">
+          <a href="#inscripciones" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all">
+            Conoce los requisitos
+          </a>
+          <button onclick="openChatWithPrompt('Hola, me gustaría agendar una visita guiada para conocer las instalaciones de la escuela.')" class="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 hover:border-white/50 text-white font-semibold text-sm sm:text-base hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <span>💬</span> Agenda visita en el chat
+          </button>
+        </div>
+
+        <!-- Barra de Cuenta Regresiva para Inscripciones -->
+        <div class="inline-flex flex-wrap items-center gap-4 p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-xs sm:text-sm">
+          <span class="font-semibold text-slate-300 flex items-center gap-1.5">
+            <span>⏳</span> Inicio de registro:
+          </span>
+          <div class="flex items-center gap-2 text-center font-mono font-bold">
+            <span class="px-2.5 py-1 rounded-lg bg-white/10 text-amber-300" id="cd-days">14 d</span> :
+            <span class="px-2.5 py-1 rounded-lg bg-white/10 text-amber-300" id="cd-hours">08 h</span> :
+            <span class="px-2.5 py-1 rounded-lg bg-white/10 text-amber-300" id="cd-minutes">45 m</span>
+          </div>
+          <span class="text-xs text-slate-400">Cupos limitados por aula</span>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Composición Visual con Tarjetas Flotantes -->
+      <div class="lg:col-span-5 relative">
+        <div class="relative mx-auto max-w-md lg:max-w-none">
+          <!-- Marco de Imagen Principal -->
+          <div class="rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl relative">
+            <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80" alt="Alumnos en taller de robótica" class="w-full h-[400px] object-cover hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#091326]/90 via-transparent to-transparent"></div>
+            <div class="absolute bottom-5 left-5 right-5 text-white">
+              <span class="text-xs font-semibold uppercase tracking-wider text-teal-300">STEAM & Futuro</span>
+              <p class="text-sm font-bold mt-1">Laboratorio de Robótica y Proyectos Tecnológicos</p>
+            </div>
+          </div>
+
+          <!-- Tarjeta Flotante 1: Logro Robótica -->
+          <div class="absolute -top-6 -left-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xl flex items-center gap-3 text-slate-900 dark:text-white animate-bounce-slow">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl flex-shrink-0">
+              🏆
+            </div>
+            <div>
+              <div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">1.er Lugar</div>
+              <div class="text-xs sm:text-sm font-semibold">Torneo Nacional STEAM 2026</div>
+            </div>
+          </div>
+
+          <!-- Tarjeta Flotante 2: Satisfacción -->
+          <div class="absolute -bottom-6 -right-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xl flex items-center gap-3 text-slate-900 dark:text-white">
+            <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl flex-shrink-0">
+              ⭐
+            </div>
+            <div>
+              <div class="text-sm font-bold text-slate-900 dark:text-white">98% Satisfacción</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Comunidad de familias activas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     3. BARRA DE MÉTRICAS & LOGROS (Stats Bar)
+     ===================================================================== -->
+<section class="py-12 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div class="p-3">
+        <div class="text-3xl sm:text-4xl font-extrabold text-teal-600 dark:text-teal-400 tracking-tight">+15 años</div>
+        <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Formando líderes en secundaria</div>
+      </div>
+      <div class="p-3">
+        <div class="text-3xl sm:text-4xl font-extrabold text-amber-500 dark:text-amber-400 tracking-tight">100%</div>
+        <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Certificación de inglés Cambridge</div>
+      </div>
+      <div class="p-3">
+        <div class="text-3xl sm:text-4xl font-extrabold text-teal-600 dark:text-teal-400 tracking-tight">1:15</div>
+        <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Atención docente personalizada</div>
+      </div>
+      <div class="p-3">
+        <div class="text-3xl sm:text-4xl font-extrabold text-amber-500 dark:text-amber-400 tracking-tight">Top 10%</div>
+        <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Rendimiento académico estatal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     4. OFERTA EDUCATIVA CON SELECTOR DE GRADO (Tabs 1.º, 2.º y 3.º)
+     ===================================================================== -->
+<section id="oferta" class="py-24 bg-slate-50 dark:bg-[#0b0f19] transition-colors">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+      <div class="max-w-xl">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+          Oferta educativa y formativa
+        </h2>
+        <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
+          Secundaria de 1.º a 3.º grado con enfoque integral en ciencias, tecnología, lenguas y humanidades.
+        </p>
+      </div>
+
+      <!-- Selector Interactivo de Grados (Tabs) -->
+      <div class="inline-flex p-1.5 rounded-2xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300/50 dark:border-slate-700 self-start md:self-auto">
+        <button onclick="switchGradeTab('grado-1')" id="tab-grado-1" class="grade-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 shadow-sm transition-all">
+          1.º Secundaria
+        </button>
+        <button onclick="switchGradeTab('grado-2')" id="tab-grado-2" class="grade-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+          2.º Secundaria
+        </button>
+        <button onclick="switchGradeTab('grado-3')" id="tab-grado-3" class="grade-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+          3.º Secundaria
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido Dinámico por Grado -->
+    <div id="content-grado-1" class="grade-content grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🤖</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">1.º Grado · Iniciación</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Fundamentos de Robótica</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Introducción a sensores, circuitos lógicos y pensamiento de diseño con bloques programables.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Proyecto: Semáforo inteligente & alarma</span>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🌎</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">1.º Grado · Bilingüe</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Inglés de Inmersión</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          5 horas a la semana enfocadas en soltura conversacional, listening y lectura comprensiva sin miedo al error.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Nivel objetivo: Cambridge A2 Key</span>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🎨</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">1.º Grado · Expresión</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Artes Visuales y Música</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Técnicas de dibujo, teoría del color e iniciación rítmica musical para estimular la creatividad.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Muestra: Galería fotográfica de otoño</span>
+      </div>
+    </div>
+
+    <!-- Contenido 2.º Grado (oculto por defecto) -->
+    <div id="content-grado-2" class="grade-content hidden grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">⚙️</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">2.º Grado · Aplicación</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Robótica Móvil y Motores</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Construcción de vehículos autónomos seguidores de línea y retos de navegación por obstáculos.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Proyecto: Rover con sensor ultrasónico</span>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🗣️</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">2.º Grado · Debate</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Public Speaking en Inglés</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Presentación de proyectos científicos y debates guiados en lengua inglesa con vocabulario técnico.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Nivel objetivo: Cambridge B1 Preliminary</span>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🎭</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">2.º Grado · Artes Vivas</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Teatro y Oratoria</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Expresión corporal, control de voz y puesta en escena de textos clásicos y contemporáneos.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Muestra: Festival de invierno</span>
+      </div>
+    </div>
+
+    <!-- Contenido 3.º Grado (oculto por defecto) -->
+    <div id="content-grado-3" class="grade-content hidden grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🚀</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">3.º Grado · Graduación</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Internet de las Cosas (IoT)</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Sistemas conectados a la nube, automatización domótica y preparación para bachilleratos tecnológicos.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Proyecto: Invernadero automatizado IoT</span>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">📜</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">3.º Grado · Certificación</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Certificación B2 First</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Simulacros de examen oficial internacional con validez curricular para el ingreso al nivel medio superior.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Acreditación: Cambridge Assessment</span>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-500/50 hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-6">🎬</div>
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">3.º Grado · Multimedia</span>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white my-2">Producción Audiovisual</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+          Guionismo, grabación, edición de video y podcast estudiantil en cabina escolar.
+        </p>
+        <span class="text-xs font-semibold text-slate-500">Proyecto: Cortometraje de graduación</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     5. PROCESO DE INSCRIPCIÓN
+     ===================================================================== -->
+<section id="inscripciones" class="py-24 bg-slate-100/70 dark:bg-[#0e1422] border-y border-slate-200/60 dark:border-slate-800/80 transition-colors">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="max-w-2xl mb-14">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+        Inscripciones paso a paso
+      </h2>
+      <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
+        Recepción de documentos del 1 al 30 de junio en control escolar (8:00 a 16:00 h).
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 hover:-translate-y-1 transition-all">
+        <span class="inline-flex px-3 py-1 rounded-lg text-xs font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 mb-4 border border-teal-100 dark:border-teal-900/50">
+          Paso 1
+        </span>
+        <h4 class="font-bold text-slate-900 dark:text-white text-base mb-2">Reúne tus papeles</h4>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+          Acta de nacimiento, CURP, certificado oficial de primaria y comprobante de domicilio.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 hover:-translate-y-1 transition-all">
+        <span class="inline-flex px-3 py-1 rounded-lg text-xs font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 mb-4 border border-teal-100 dark:border-teal-900/50">
+          Paso 2
+        </span>
+        <h4 class="font-bold text-slate-900 dark:text-white text-base mb-2">Trae 2 fotografías</h4>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+          Tamaño infantil recientes, en papel mate, a color o blanco y negro.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 hover:-translate-y-1 transition-all">
+        <span class="inline-flex px-3 py-1 rounded-lg text-xs font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 mb-4 border border-teal-100 dark:border-teal-900/50">
+          Paso 3
+        </span>
+        <h4 class="font-bold text-slate-900 dark:text-white text-base mb-2">Paga la inscripción</h4>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+          $1,800 en caja de control escolar o mediante transferencia bancaria.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 hover:-translate-y-1 transition-all">
+        <span class="inline-flex px-3 py-1 rounded-lg text-xs font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-600 dark:text-teal-400 mb-4 border border-teal-100 dark:border-teal-900/50">
+          Paso 4
+        </span>
+        <h4 class="font-bold text-slate-900 dark:text-white text-base mb-2">Recibe tu lista</h4>
+        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+          Lista de útiles escolares, guía de uniformes y fecha de junta de bienvenida.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     6. COSTOS Y CALCULADORA INTERACTIVA DE BECAS
+     ===================================================================== -->
+<section id="costos" class="py-24 bg-slate-50 dark:bg-[#0b0f19] transition-colors">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="max-w-2xl mb-14">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+        Costos y calculadora de becas
+      </h2>
+      <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
+        Conoce los precios oficiales y simula en tiempo real el monto de tu mensualidad con beca.
+      </p>
+    </div>
+
+    <!-- Rejilla: Precios Oficiales (Izquierda) + Calculadora Interactiva (Derecha) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Precios oficiales -->
+      <div class="lg:col-span-5 space-y-6">
+        <div class="p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <span class="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider">Pago Anual Único</span>
+          <div class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight my-2">$1,800</div>
+          <p class="text-slate-600 dark:text-slate-400 text-sm">
+            Inscripción anual al formalizar el ingreso en control escolar.
+          </p>
+        </div>
+
+        <div class="p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <span class="text-xs font-bold text-amber-500 uppercase tracking-wider">10 Mensualidades</span>
+          <div class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight my-2">$2,400</div>
+          <p class="text-slate-600 dark:text-slate-400 text-sm">
+            Colegiatura regular mensual (10% descuento pagando antes del día 5).
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          🎓 <strong>Becas del 25% y 50%:</strong> Para alumnos con promedio igual o mayor a 9.0 o por situación socioeconómica. Recepción en agosto.
+        </div>
+      </div>
+
+      <!-- Calculadora Interactiva -->
+      <div class="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border-2 border-teal-500/30 dark:border-teal-500/40 shadow-xl relative overflow-hidden">
+        <div class="flex items-center justify-between gap-4 mb-6">
+          <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+            Simulador de Colegiatura
+          </h3>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+            En tiempo real
+          </span>
+        </div>
+
+        <!-- Slider de Promedio -->
+        <div class="space-y-3 mb-6">
+          <div class="flex justify-between items-center text-sm font-semibold">
+            <label for="grade-slider" class="text-slate-700 dark:text-slate-300">Promedio del alumno:</label>
+            <span id="grade-display" class="text-2xl font-black text-teal-600 dark:text-teal-400 font-mono">9.2</span>
+          </div>
+          <input type="range" id="grade-slider" min="7.0" max="10.0" step="0.1" value="9.2" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-600">
+          <div class="flex justify-between text-xs text-slate-400 font-medium">
+            <span>7.0 (Regular)</span>
+            <span>9.0 (Beca 25%)</span>
+            <span>9.5+ (Beca 50%)</span>
+          </div>
+        </div>
+
+        <!-- Checkbox de Pronto Pago -->
+        <label class="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 cursor-pointer mb-8">
+          <input type="checkbox" id="early-payment" checked class="w-5 h-5 rounded text-teal-600 focus:ring-teal-500">
+          <span class="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+            Aplica 10% adicional por pronto pago (antes del día 5)
+          </span>
+        </label>
+
+        <!-- Resultados del Cálculo -->
+        <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-teal-50/50 dark:from-slate-800/80 dark:to-slate-800/40 border border-teal-200/60 dark:border-teal-800/50">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span id="discount-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-teal-500 text-white mb-2">
+                Beca estimada: 25% + 10% pronto pago
+              </span>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Colegiatura mensual calculada:</div>
+            </div>
+            <div class="text-right sm:text-right">
+              <div id="final-price" class="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
+                $1,620
+              </div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">por mes · 10 mensualidades</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón conectado al Asistente -->
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <button onclick="openChatWithPrompt('Hola, me gustaría saber cuáles son los requisitos oficiales para solicitar la beca por promedio en agosto.')" class="text-xs sm:text-sm font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1.5">
+            <span>💬</span> Pregúntale a HorizonteBot los requisitos de esta beca
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     7. COMUNIDAD Y TESTIMONIOS (Social Proof)
+     ===================================================================== -->
+<section id="testimonios" class="py-24 bg-slate-100/70 dark:bg-[#0e1422] border-t border-slate-200/60 dark:border-slate-800/80 transition-colors">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="max-w-2xl mb-14 text-center mx-auto">
+      <span class="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider">Testimonios Reales</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-2 mb-3">
+        Lo que dice nuestra comunidad
+      </h2>
+      <p class="text-slate-600 dark:text-slate-400 text-base">
+        Familias y egresados comparten su experiencia en la Escuela Horizonte.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Testimonio 1 -->
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex text-amber-400 text-sm mb-4">★★★★★</div>
+          <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed italic mb-6">
+            "El taller de robótica transformó la curiosidad de mi hijo en una vocación clara. Los maestros realmente conocen a cada alumno por su nombre y ritmo de aprendizaje."
+          </p>
+        </div>
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="Dra. Mariana López" class="w-10 h-10 rounded-full object-cover">
+          <div>
+            <div class="text-sm font-bold text-slate-900 dark:text-white">Mariana López</div>
+            <div class="text-xs text-slate-500">Mamá de alumno en 2.º grado</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonio 2 -->
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex text-amber-400 text-sm mb-4">★★★★★</div>
+          <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed italic mb-6">
+            "Terminé tercero con la certificación B2 de Cambridge sin necesidad de pagar cursos externos. La exigencia académica y el ambiente seguro hicieron toda la diferencia."
+          </p>
+        </div>
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80" alt="Emiliano Castro" class="w-10 h-10 rounded-full object-cover">
+          <div>
+            <div class="text-sm font-bold text-slate-900 dark:text-white">Emiliano Castro</div>
+            <div class="text-xs text-slate-500">Egresado Generación 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonio 3 -->
+      <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex text-amber-400 text-sm mb-4">★★★★★</div>
+          <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed italic mb-6">
+            "El sistema de becas por promedio es transparente y puntual. Es un incentivo real para que los chicos mantengan sus notas y aprendan a valorar su esfuerzo."
+          </p>
+        </div>
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Ing. Carlos Navarrete" class="w-10 h-10 rounded-full object-cover">
+          <div>
+            <div class="text-sm font-bold text-slate-900 dark:text-white">Carlos Navarrete</div>
+            <div class="text-xs text-slate-500">Papá de alumna en 1.er grado</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     8. PREGUNTAS FRECUENTES (FAQ Acordeón)
+     ===================================================================== -->
+<section id="faq" class="py-24 bg-slate-50 dark:bg-[#0b0f19] transition-colors">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center max-w-xl mx-auto mb-14">
+      <span class="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider">Resolvemos tus dudas</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-2 mb-3">
+        Preguntas frecuentes
+      </h2>
+      <p class="text-slate-600 dark:text-slate-400 text-base">
+        Información rápida sobre horarios, transporte, evaluaciones y admisiones.
+      </p>
+    </div>
+
+    <!-- Lista de Acordeón -->
+    <div class="space-y-4">
+      <!-- Item 1 -->
+      <div class="faq-item rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all">
+        <button onclick="toggleFaq(this)" class="w-full p-6 text-left flex items-center justify-between gap-4 font-bold text-slate-900 dark:text-white text-base hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+          <span>¿Cuál es el horario de clases y talleres extracurriculares?</span>
+          <span class="faq-icon text-xl text-slate-400 transition-transform duration-200">+</span>
+        </button>
+        <div class="faq-body hidden px-6 pb-6 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-4">
+          Las clases regulares se imparten de lunes a viernes de 7:00 a 14:00 h. Los talleres extracurriculares de robótica avanzada y ensambles artísticos tienen lugar de 14:30 a 16:00 h los días martes y jueves.
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="faq-item rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all">
+        <button onclick="toggleFaq(this)" class="w-full p-6 text-left flex items-center justify-between gap-4 font-bold text-slate-900 dark:text-white text-base hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+          <span>¿Cómo se tramita la beca académica o socioeconómica?</span>
+          <span class="faq-icon text-xl text-slate-400 transition-transform duration-200">+</span>
+        </button>
+        <div class="faq-body hidden px-6 pb-6 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-4">
+          La convocatoria oficial se publica durante la primera quincena de agosto. Para mérito académico se requiere promedio mínimo de 9.0 en el ciclo anterior sin materias reprobadas; para apoyo socioeconómico se realiza un breve estudio de ingresos familiares en control escolar.
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="faq-item rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all">
+        <button onclick="toggleFaq(this)" class="w-full p-6 text-left flex items-center justify-between gap-4 font-bold text-slate-900 dark:text-white text-base hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+          <span>¿Tienen convenios de transporte escolar?</span>
+          <span class="faq-icon text-xl text-slate-400 transition-transform duration-200">+</span>
+        </button>
+        <div class="faq-body hidden px-6 pb-6 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-4">
+          Sí, contamos con rutas concesionadas de transporte que cubren las zonas de Cuauhtémoc, Benito Juárez y Miguel Hidalgo con monitoreo GPS y seguro de viajero.
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="faq-item rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all">
+        <button onclick="toggleFaq(this)" class="w-full p-6 text-left flex items-center justify-between gap-4 font-bold text-slate-900 dark:text-white text-base hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+          <span>¿El asistente virtual puede responder dudas sobre tickets del personal?</span>
+          <span class="faq-icon text-xl text-slate-400 transition-transform duration-200">+</span>
+        </button>
+        <div class="faq-body hidden px-6 pb-6 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-4">
+          ¡Sí! Si eres empleado de la escuela, escribe en el chat tu código de trabajador (ej. EH-1001) para validar tu identidad y reportar tickets de mantenimiento o sistemas directamente a través de nuestro flujo automatizado con n8n.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     9. CONTACTO & MAPA
+     ===================================================================== -->
+<section id="contacto" class="py-24 bg-slate-100/70 dark:bg-[#0e1422] border-t border-slate-200/60 dark:border-slate-800/80 transition-colors">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+        <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+          Contacto y Visitas
+        </h2>
+        <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed mb-8">
+          ¿Dudas sobre el proceso? Escríbele a nuestro asistente en la esquina inferior derecha o comunícate directamente con nosotros.
+        </p>
+
+        <div class="space-y-5 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+          <div class="flex items-start gap-4">
+            <span class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg flex-shrink-0">📍</span>
+            <div>
+              <strong class="block text-slate-900 dark:text-white font-semibold">Dirección:</strong>
+              Av. Juárez 120, Col. Centro, a dos cuadras del metro Hidalgo, Ciudad de México.
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <span class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg flex-shrink-0">📞</span>
+            <div>
+              <strong class="block text-slate-900 dark:text-white font-semibold">Teléfonos de atención:</strong>
+              Teléfono: 55 1234 5678 · WhatsApp: 55 8765 4321
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <span class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg flex-shrink-0">✉️</span>
+            <div>
+              <strong class="block text-slate-900 dark:text-white font-semibold">Correo oficial:</strong>
+              <a href="mailto:informes@escuelahorizonte.edu.mx" class="text-teal-600 dark:text-teal-400 font-semibold hover:underline">
+                informes@escuelahorizonte.edu.mx
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm text-center flex flex-col items-center justify-center min-h-[340px]">
+        <div class="w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/80 border border-teal-500/40 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mb-4 shadow-sm">
+          📍
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Campus Centro Histórico</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm max-w-xs mb-6">
+          Instalaciones equipadas con canchas deportivas, aula maker de cómputo y auditorio.
+        </p>
+        <span class="px-4 py-2 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          Horario de atención: Lun a Vie 8:00 a 16:00 h
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     10. FOOTER
+     ===================================================================== -->
+<footer class="bg-slate-950 text-slate-400 border-t border-slate-800 py-10 text-sm">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div>© Escuela Horizonte · Sitio de práctica (datos ficticios)</div>
+    <div class="text-xs text-slate-500">Introduction to Agentic AI · INFOTEC</div>
+  </div>
+</footer>
+
+<!-- =====================================================================
+     SCRIPTS INTERACTIVOS (Tabs, Calculadora, FAQ, Chat helper, Toggle Día/Noche)
+     ===================================================================== -->
+<script>
+  // 1) Switch Día / Noche
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('eh_theme', newTheme);
+  });
+
+  // 2) Tabs por Grado (1.º, 2.º, 3.º de secundaria)
+  function switchGradeTab(gradoId) {
+    document.querySelectorAll('.grade-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById('content-' + gradoId).classList.remove('hidden');
+
+    document.querySelectorAll('.grade-tab-btn').forEach(btn => {
+      btn.className = 'grade-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all';
+    });
+
+    const activeBtn = document.getElementById('tab-' + gradoId);
+    activeBtn.className = 'grade-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 shadow-sm transition-all';
+  }
+
+  // 3) Calculadora interactiva de Becas
+  const gradeSlider = document.getElementById('grade-slider');
+  const gradeDisplay = document.getElementById('grade-display');
+  const earlyPaymentCheckbox = document.getElementById('early-payment');
+  const finalPriceEl = document.getElementById('final-price');
+  const discountBadge = document.getElementById('discount-badge');
+
+  function calculateTuition() {
+    const grade = parseFloat(gradeSlider.value);
+    gradeDisplay.textContent = grade.toFixed(1);
+
+    const basePrice = 2400;
+    let scholarshipRate = 0;
+    let badgeText = "Colegiatura regular";
+
+    if (grade >= 9.5) {
+      scholarshipRate = 0.50;
+      badgeText = "Beca Académica 50%";
+    } else if (grade >= 9.0) {
+      scholarshipRate = 0.25;
+      badgeText = "Beca Académica 25%";
+    }
+
+    let subtotal = basePrice * (1 - scholarshipRate);
+    const hasEarlyPayment = earlyPaymentCheckbox.checked;
+
+    if (hasEarlyPayment) {
+      subtotal = subtotal * 0.90; // 10% adicional
+      badgeText += scholarshipRate > 0 ? " + 10% pronto pago" : " + 10% pronto pago";
+    }
+
+    finalPriceEl.textContent = "$" + Math.round(subtotal).toLocaleString();
+    discountBadge.textContent = badgeText;
+  }
+
+  gradeSlider.addEventListener('input', calculateTuition);
+  earlyPaymentCheckbox.addEventListener('change', calculateTuition);
+  calculateTuition();
+
+  // 4) Acordeón de FAQ
+  function toggleFaq(btn) {
+    const body = btn.nextElementSibling;
+    const icon = btn.querySelector('.faq-icon');
+    const isHidden = body.classList.contains('hidden');
+
+    // Cerrar los demás acordeones
+    document.querySelectorAll('.faq-body').forEach(b => b.classList.add('hidden'));
+    document.querySelectorAll('.faq-icon').forEach(i => {
+      i.textContent = '+';
+      i.style.transform = 'rotate(0deg)';
+    });
+
+    if (isHidden) {
+      body.classList.remove('hidden');
+      icon.textContent = '−';
+      icon.style.transform = 'rotate(180deg)';
+    }
+  }
+
+  // Cuenta regresiva dinámica
+  function updateCountdown() {
+    const now = new Date();
+    // Próximo 1 de junio
+    let target = new Date(now.getFullYear(), 5, 1, 8, 0, 0);
+    if (now > target) {
+      target = new Date(now.getFullYear() + 1, 5, 1, 8, 0, 0);
+    }
+    const diff = target - now;
+    if (diff > 0) {
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / 1000 / 60) % 60);
+      document.getElementById('cd-days').textContent = d + " d";
+      document.getElementById('cd-hours').textContent = (h < 10 ? "0" + h : h) + " h";
+      document.getElementById('cd-minutes').textContent = (m < 10 ? "0" + m : m) + " m";
+    }
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // 5) Conexión interactiva con el Asistente n8n
+  function openChatWithPrompt(promptText) {
+    const toggle = document.querySelector('.chat-window-toggle') || document.querySelector('.chat-toggle');
+    const windowEl = document.querySelector('.chat-window');
+    
+    // Si la ventana no está abierta, hacer clic en el botón flotante
+    if (toggle && (!windowEl || windowEl.offsetParent === null)) {
+      toggle.click();
+    }
+
+    if (promptText) {
+      setTimeout(() => {
+        const textarea = document.querySelector('.chat-inputs textarea') || document.querySelector('.chat-input textarea');
+        if (textarea) {
+          textarea.value = promptText;
+          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          textarea.focus();
+        }
+      }, 350);
+    }
+  }
+</script>
+
+<!-- =====================================================================
+     CHAT DE N8N (LÓGICA Y WEBHOOK 100% INTACTOS)
+     ===================================================================== -->
+<script type="module">
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+  createChat({
+    webhookUrl: 'https://rodolfo010385ia.taila7fe53.ts.net/webhook/f8a1e123-3c54-4c27-a706-7caaad6aebed/chat',
+    initialMessages: [
+      '¡Hola! Soy el asistente de la Escuela Horizonte.',
+      'Pregúntame por inscripciones, colegiaturas, horarios o becas. Si eres parte del personal, ten a la mano tu código de empleado.'
+    ],
+    i18n: {
+      en: {
+        title: 'Asistente Horizonte',
+        subtitle: 'Te respondemos al momento, las 24 horas',
+        footer: '',
+        getStarted: 'Nueva conversación',
+        inputPlaceholder: 'Escribe tu pregunta...'
+      }
+    }
+  });
+</script>
+</body>
+</html>
